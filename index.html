@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- GitHub Pages向け単一ファイル版：このファイルを index.html の名前でアップロードしてください -->
+<!-- GitHub Pages向け単一ファイル版・誤答回数履歴対応：このファイルを index.html の名前でアップロードしてください -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -290,7 +290,7 @@ select, .small-btn {
 </header>
 
 <div id="notice" class="notice">
-  1周目は全問題を解き，2周目以降は「間違えた問題のみ」を選ぶと，誤答だけを繰り返せます．復習で正解した問題は誤答リストから外れます．
+  1周目は全問題を解き，2周目以降は「現在の誤答のみ」または「過去に1回以上誤答」を選んで復習できます．現在の誤答は復習で正解すると外れますが，過去の誤答回数は残ります．
 </div>
 
 <section class="toolbar">
@@ -310,7 +310,10 @@ select, .small-btn {
     <label for="mode">出題モード</label>
     <select id="mode">
       <option value="all">全問題</option>
-      <option value="wrong">間違えた問題のみ</option>
+      <option value="wrong">現在の誤答のみ</option>
+      <option value="everWrong1">過去に1回以上誤答</option>
+      <option value="everWrong2">過去に2回以上誤答</option>
+      <option value="everWrong3">過去に3回以上誤答</option>
       <option value="unanswered">未回答のみ</option>
     </select>
   </div>
@@ -327,7 +330,7 @@ select, .small-btn {
   </div>
   <div class="control">
     <label>誤答リスト</label>
-    <button id="wrongBtn" class="small-btn">誤答だけ開始</button>
+    <button id="wrongBtn" class="small-btn">現在の誤答だけ開始</button>
   </div>
   <div class="control">
     <label>現在のセッション</label>
@@ -351,7 +354,8 @@ select, .small-btn {
   <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
   <div class="badges">
     <span id="modeBadge" class="badge">全問題</span>
-    <span id="wrongBadge" class="badge wrong">誤答 0問</span>
+    <span id="wrongBadge" class="badge wrong">現在の誤答 0問</span>
+    <span id="everWrongBadge" class="badge wrong">誤答経験 0問</span>
   </div>
 </section>
 
@@ -382,7 +386,7 @@ select, .small-btn {
   <h2 id="finishTitle">セッション完了</h2>
   <p id="finishText"></p>
   <div class="finish-actions">
-    <button id="finishWrongBtn" class="small-btn primary">間違えた問題だけ復習</button>
+    <button id="finishWrongBtn" class="small-btn primary">現在の誤答だけ復習</button>
     <button id="finishAllBtn" class="small-btn">全問題をもう一度</button>
   </div>
 </section>
@@ -394,7 +398,7 @@ const STORAGE_KEY = "ai-final-quiz-v1";
 
 const els = Object.fromEntries([
   "scope","mode","order","startBtn","wrongBtn","restartBtn","resetBtn",
-  "progressText","scoreText","progressBar","modeBadge","wrongBadge",
+  "progressText","scoreText","progressBar","modeBadge","wrongBadge","everWrongBadge",
   "quizCard","meta","topic","statement","trueBtn","falseBtn","result",
   "resultTitle","correctAnswer","explanation","nextRow","nextBtn",
   "finish","finishTitle","finishText","finishWrongBtn","finishAllBtn"
@@ -425,7 +429,35 @@ function loadSaved() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptySaved();
-    return { ...emptySaved(), ...JSON.parse(raw) };
+
+    const loaded = { ...emptySaved(), ...JSON.parse(raw) };
+    loaded.wrongIds = Array.isArray(loaded.wrongIds) ? loaded.wrongIds : [];
+    loaded.history = loaded.history && typeof loaded.history === "object"
+      ? loaded.history
+      : {};
+
+    // 旧版からの移行処理．現在の誤答リストにある問題は，少なくとも1回誤答したものとして引き継ぐ．
+    for (const id of loaded.wrongIds) {
+      const old = loaded.history[id] || {};
+      loaded.history[id] = {
+        ...old,
+        attempts: Number(old.attempts || 0),
+        correctCount: Number(old.correctCount || (old.lastCorrect === true ? 1 : 0)),
+        wrongCount: Math.max(1, Number(old.wrongCount || 0))
+      };
+    }
+
+    // 新版の集計項目がない履歴も安全に補完する．
+    for (const [id, old] of Object.entries(loaded.history)) {
+      loaded.history[id] = {
+        ...old,
+        attempts: Number(old.attempts || 0),
+        correctCount: Number(old.correctCount || 0),
+        wrongCount: Number(old.wrongCount || 0)
+      };
+    }
+
+    return loaded;
   } catch {
     return emptySaved();
   }
@@ -450,6 +482,12 @@ function filteredList(scope, mode, order) {
   if (mode === "wrong") {
     const wrongSet = new Set(saved.wrongIds);
     list = list.filter(q => wrongSet.has(q.id));
+  } else if (mode === "everWrong1") {
+    list = list.filter(q => (saved.history[q.id]?.wrongCount || 0) >= 1);
+  } else if (mode === "everWrong2") {
+    list = list.filter(q => (saved.history[q.id]?.wrongCount || 0) >= 2);
+  } else if (mode === "everWrong3") {
+    list = list.filter(q => (saved.history[q.id]?.wrongCount || 0) >= 3);
   } else if (mode === "unanswered") {
     list = list.filter(q => !saved.history[q.id]);
   }
@@ -490,10 +528,13 @@ function startSession(options = {}) {
 function showEmpty(mode) {
   els.quizCard.classList.add("hidden");
   els.finish.classList.add("show");
-  els.finishTitle.textContent = mode === "wrong" ? "復習対象はありません" : "対象問題はありません";
+  const isReviewMode = ["wrong", "everWrong1", "everWrong2", "everWrong3"].includes(mode);
+  els.finishTitle.textContent = isReviewMode ? "復習対象はありません" : "対象問題はありません";
   els.finishText.textContent = mode === "wrong"
-    ? "現在，間違えた問題は0問です．全問題モードで学習を開始できます．"
-    : "選択した条件に該当する問題がありません．";
+    ? "現在の誤答は0問です．「過去に1回以上誤答」には，復習後に正解した問題も残ります．"
+    : isReviewMode
+      ? "選択した誤答回数の条件に該当する問題はありません．"
+      : "選択した条件に該当する問題がありません．";
   els.finishWrongBtn.classList.toggle("hidden", saved.wrongIds.length === 0);
   updateStats();
 }
@@ -528,10 +569,14 @@ function answer(userAnswer) {
 
   saved.totalAnswers += 1;
   saved.totalCorrect += isCorrect ? 1 : 0;
+  const previous = saved.history[q.id] || {};
   saved.history[q.id] = {
+    ...previous,
     answeredAt: new Date().toISOString(),
     lastCorrect: isCorrect,
-    attempts: (saved.history[q.id]?.attempts || 0) + 1
+    attempts: (previous.attempts || 0) + 1,
+    correctCount: (previous.correctCount || 0) + (isCorrect ? 1 : 0),
+    wrongCount: (previous.wrongCount || 0) + (isCorrect ? 0 : 1)
   };
 
   const wrongSet = new Set(saved.wrongIds);
@@ -602,11 +647,19 @@ function updateStats() {
 function updateBadges() {
   const labels = {
     all: "全問題",
-    wrong: "間違えた問題のみ",
+    wrong: "現在の誤答のみ",
+    everWrong1: "過去に1回以上誤答",
+    everWrong2: "過去に2回以上誤答",
+    everWrong3: "過去に3回以上誤答",
     unanswered: "未回答のみ"
   };
   els.modeBadge.textContent = labels[session.mode] || labels[els.mode.value];
-  els.wrongBadge.textContent = `誤答 ${saved.wrongIds.length}問`;
+
+  const everWrongCount = QUESTIONS.filter(
+    q => (saved.history[q.id]?.wrongCount || 0) >= 1
+  ).length;
+  els.wrongBadge.textContent = `現在の誤答 ${saved.wrongIds.length}問`;
+  els.everWrongBadge.textContent = `誤答経験 ${everWrongCount}問`;
 }
 
 function restartSession() {
@@ -628,7 +681,7 @@ els.startBtn.addEventListener("click", () => startSession());
 els.wrongBtn.addEventListener("click", () => startSession({ mode: "wrong" }));
 els.restartBtn.addEventListener("click", restartSession);
 els.resetBtn.addEventListener("click", () => {
-  const ok = confirm("保存されている回答履歴と誤答リストをすべて消去しますか？");
+  const ok = confirm("保存されている回答履歴，誤答回数，誤答リストをすべて消去しますか？");
   if (!ok) return;
   saved = emptySaved();
   save();
