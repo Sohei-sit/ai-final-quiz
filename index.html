@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<!-- GitHub Pages向け単一ファイル版：このファイルを index.html の名前でアップロードしてください -->
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人工知能　期末試験対策</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f4f6f9;
+  --panel: #ffffff;
+  --text: #172033;
+  --sub: #667085;
+  --line: #d8dee9;
+  --primary: #2457d6;
+  --primary-soft: #e8efff;
+  --ok: #157347;
+  --ok-soft: #e7f6ee;
+  --ng: #b42318;
+  --ng-soft: #fdecea;
+  --warn: #8a5a00;
+  --warn-soft: #fff4d6;
+  --shadow: 0 12px 32px rgba(16, 24, 40, .10);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f141d;
+    --panel: #171e2a;
+    --text: #eef2f7;
+    --sub: #aab4c3;
+    --line: #334155;
+    --primary: #7aa2ff;
+    --primary-soft: #1d315f;
+    --ok: #74d3a4;
+    --ok-soft: #17392b;
+    --ng: #ff9a92;
+    --ng-soft: #48211f;
+    --warn: #ffd27a;
+    --warn-soft: #40341c;
+    --shadow: 0 12px 32px rgba(0,0,0,.35);
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
+}
+button, select, input { font: inherit; }
+button { touch-action: manipulation; }
+.app {
+  width: min(920px, 100%);
+  margin: 0 auto;
+  padding: 18px 14px 42px;
+}
+header {
+  margin: 8px 0 16px;
+}
+h1 {
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  margin: 0 0 6px;
+}
+.subtitle {
+  color: var(--sub);
+  line-height: 1.6;
+  font-size: .94rem;
+}
+.toolbar, .stats, .card, .finish {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+.toolbar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.control label {
+  font-size: .77rem;
+  color: var(--sub);
+}
+select, .small-btn {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 8px 10px;
+}
+.small-btn {
+  cursor: pointer;
+  font-weight: 700;
+}
+.small-btn.primary {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+.small-btn.danger {
+  color: var(--ng);
+}
+.stats {
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+.progress-track {
+  height: 10px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.progress-bar {
+  height: 100%;
+  width: 0;
+  background: var(--primary);
+  transition: width .2s ease;
+}
+.stat-text {
+  color: var(--sub);
+  font-size: .9rem;
+}
+.badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.badge {
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 700;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.badge.wrong {
+  background: var(--ng-soft);
+  color: var(--ng);
+}
+.card {
+  padding: clamp(18px, 4vw, 30px);
+}
+.meta {
+  color: var(--sub);
+  font-size: .9rem;
+  margin-bottom: 10px;
+}
+.topic {
+  font-weight: 700;
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+.statement {
+  font-size: clamp(1.18rem, 4.8vw, 1.65rem);
+  font-weight: 750;
+  line-height: 1.75;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+}
+.answer-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 24px;
+}
+.answer-btn {
+  min-height: 64px;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.answer-btn:hover { transform: translateY(-1px); }
+.answer-btn.true { border-color: var(--ok); }
+.answer-btn.false { border-color: var(--ng); }
+.answer-btn:disabled {
+  cursor: default;
+  opacity: .6;
+  transform: none;
+}
+.result {
+  display: none;
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 14px;
+  line-height: 1.75;
+}
+.result.show { display: block; }
+.result.correct {
+  background: var(--ok-soft);
+  border: 1px solid var(--ok);
+}
+.result.incorrect {
+  background: var(--ng-soft);
+  border: 1px solid var(--ng);
+}
+.result-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.explanation-label {
+  color: var(--sub);
+  font-size: .83rem;
+  font-weight: 700;
+  margin-top: 10px;
+}
+.next-row {
+  display: none;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+.next-row.show { display: flex; }
+.next-btn {
+  min-height: 48px;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 22px;
+  background: var(--primary);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+.finish {
+  display: none;
+  padding: 28px 20px;
+  text-align: center;
+}
+.finish.show { display: block; }
+.finish h2 { margin-top: 0; }
+.finish p { line-height: 1.7; color: var(--sub); }
+.finish-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.notice {
+  background: var(--warn-soft);
+  color: var(--warn);
+  border: 1px solid var(--warn);
+  border-radius: 12px;
+  padding: 11px 13px;
+  margin-bottom: 12px;
+  font-size: .9rem;
+  line-height: 1.5;
+}
+.keyboard {
+  color: var(--sub);
+  text-align: center;
+  font-size: .78rem;
+  margin-top: 12px;
+}
+.hidden { display: none !important; }
+@media (max-width: 680px) {
+  .toolbar { grid-template-columns: 1fr 1fr; }
+  .statement { min-height: 185px; }
+}
+</style>
+</head>
+<body>
+<main class="app">
+<header>
+  <h1>人工知能　期末試験対策</h1>
+  <div class="subtitle">理解度確認テスト第8回〜第13回　正誤問題集．回答すると，その場で正解と解説を表示します．</div>
+</header>
+
+<div id="notice" class="notice">
+  1周目は全問題を解き，2周目以降は「間違えた問題のみ」を選ぶと，誤答だけを繰り返せます．復習で正解した問題は誤答リストから外れます．
+</div>
+
+<section class="toolbar">
+  <div class="control">
+    <label for="scope">出題範囲</label>
+    <select id="scope">
+      <option value="all">第8回〜第13回</option>
+      <option value="8">第8回</option>
+      <option value="9">第9回</option>
+      <option value="10">第10回</option>
+      <option value="11">第11回</option>
+      <option value="12">第12回</option>
+      <option value="13">第13回</option>
+    </select>
+  </div>
+  <div class="control">
+    <label for="mode">出題モード</label>
+    <select id="mode">
+      <option value="all">全問題</option>
+      <option value="wrong">間違えた問題のみ</option>
+      <option value="unanswered">未回答のみ</option>
+    </select>
+  </div>
+  <div class="control">
+    <label for="order">出題順</label>
+    <select id="order">
+      <option value="normal">通常順</option>
+      <option value="shuffle">ランダム</option>
+    </select>
+  </div>
+  <div class="control">
+    <label>学習操作</label>
+    <button id="startBtn" class="small-btn primary">この条件で開始</button>
+  </div>
+  <div class="control">
+    <label>誤答リスト</label>
+    <button id="wrongBtn" class="small-btn">誤答だけ開始</button>
+  </div>
+  <div class="control">
+    <label>現在のセッション</label>
+    <button id="restartBtn" class="small-btn">最初からやり直す</button>
+  </div>
+  <div class="control">
+    <label>保存データ</label>
+    <button id="resetBtn" class="small-btn danger">進捗を全消去</button>
+  </div>
+  <div class="control">
+    <label>登録問題数</label>
+    <button class="small-btn" disabled>全150問</button>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat-row">
+    <div id="progressText" class="stat-text">準備中</div>
+    <div id="scoreText" class="stat-text"></div>
+  </div>
+  <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+  <div class="badges">
+    <span id="modeBadge" class="badge">全問題</span>
+    <span id="wrongBadge" class="badge wrong">誤答 0問</span>
+  </div>
+</section>
+
+<section id="quizCard" class="card">
+  <div id="meta" class="meta"></div>
+  <div id="topic" class="topic"></div>
+  <div id="statement" class="statement"></div>
+
+  <div class="answer-buttons">
+    <button id="trueBtn" class="answer-btn true">○　正しい</button>
+    <button id="falseBtn" class="answer-btn false">×　誤り</button>
+  </div>
+
+  <div id="result" class="result">
+    <div id="resultTitle" class="result-title"></div>
+    <div id="correctAnswer"></div>
+    <div class="explanation-label">解説</div>
+    <div id="explanation"></div>
+  </div>
+
+  <div id="nextRow" class="next-row">
+    <button id="nextBtn" class="next-btn">次の問題へ</button>
+  </div>
+  <div class="keyboard">キーボード操作：○＝O または →，×＝X または ←，次へ＝Enter</div>
+</section>
+
+<section id="finish" class="finish">
+  <h2 id="finishTitle">セッション完了</h2>
+  <p id="finishText"></p>
+  <div class="finish-actions">
+    <button id="finishWrongBtn" class="small-btn primary">間違えた問題だけ復習</button>
+    <button id="finishAllBtn" class="small-btn">全問題をもう一度</button>
+  </div>
+</section>
+</main>
+
+<script>
+const QUESTIONS = [{"id": "8-1-1", "test": 8, "topic": "第1問　強化学習の基本的な概念", "number": "1-1", "statement": "強化学習は，教師あり学習の一種である．", "answer": false, "explanation": "強化学習は，教師あり学習のように正解ラベルを用いて学習するのではなく，報酬に基づいた試行錯誤を通じて学習する．"}, {"id": "8-1-2", "test": 8, "topic": "第1問　強化学習の基本的な概念", "number": "1-2", "statement": "強化学習では，試行錯誤を通じて最適な行動パターンを学習する．", "answer": true, "explanation": "エージェントは環境との相互作用を繰り返し，より高い報酬を得る行動方策を学習する．"}, {"id": "8-1-3", "test": 8, "topic": "第1問　強化学習の基本的な概念", "number": "1-3", "statement": "強化学習における報酬は，行動の良し悪しを評価するために与えられる値である．", "answer": true, "explanation": "報酬は，エージェントが目標達成にどの程度貢献したかを示す評価指標である．"}, {"id": "8-1-4", "test": 8, "topic": "第1問　強化学習の基本的な概念", "number": "1-4", "statement": "強化学習では，正解データが常に与えられる．", "answer": false, "explanation": "強化学習では正解ラベルは与えられず，報酬を手がかりとして行動を改善していく．"}, {"id": "8-1-5", "test": 8, "topic": "第1問　強化学習の基本的な概念", "number": "1-5", "statement": "強化学習では，環境との相互作用を通じてエージェントが方策を改善する．", "answer": true, "explanation": "エージェントは環境から得られる報酬を利用して，より良い方策へと更新する．"}, {"id": "8-2-1", "test": 8, "topic": "第2問　マルコフ決定過程（MDP）の構成要素と性質", "number": "2-1", "statement": "MDPにおける状態遷移確率は，現在の状態と行動に依存して次の状態が決まる確率である．", "answer": true, "explanation": "状態遷移確率は，現在の状態と実行した行動に基づいて次状態が決まる確率を表す．"}, {"id": "8-2-2", "test": 8, "topic": "第2問　マルコフ決定過程（MDP）の構成要素と性質", "number": "2-2", "statement": "MDPにおける方策は，状態に対してどの行動をとるかの確率分布を与える．", "answer": true, "explanation": "方策は，各状態でどの行動を選択するかを定める規則であり，確率的に表現されることもある．"}, {"id": "8-2-3", "test": 8, "topic": "第2問　マルコフ決定過程（MDP）の構成要素と性質", "number": "2-3", "statement": "MDPにおいて，割引率が1に近いほど，将来の報酬がより重視される．", "answer": true, "explanation": "割引率が大きいほど，将来得られる報酬の価値を現在に近い重みで評価する．"}, {"id": "8-2-4", "test": 8, "topic": "第2問　マルコフ決定過程（MDP）の構成要素と性質", "number": "2-4", "statement": "MDPにおける割引累積報酬は，未来の報酬をすべて等しく加算したものである．", "answer": false, "explanation": "将来の報酬には割引率が適用されるため，遠い将来の報酬ほど小さく評価される．"}, {"id": "8-2-5", "test": 8, "topic": "第2問　マルコフ決定過程（MDP）の構成要素と性質", "number": "2-5", "statement": "MDPでは，ある時点の状態と行動のみに基づいて次の状態が決まるというマルコフ性が仮定される．", "answer": true, "explanation": "MDPでは，過去の履歴ではなく現在の状態と行動のみが次状態に影響すると仮定する．"}, {"id": "8-3-1", "test": 8, "topic": "第3問　状態価値関数と行動価値関数", "number": "3-1", "statement": "状態価値関数は，ある状態における行動価値の最大値を表す．", "answer": false, "explanation": "状態価値関数は，ある状態から方策に従ったときに得られる割引累積報酬の期待値を表す．"}, {"id": "8-3-2", "test": 8, "topic": "第3問　状態価値関数と行動価値関数", "number": "3-2", "statement": "行動価値関数 Q(s,a) は，状態 s で行動 a をとったときに得られる割引累積報酬の期待値である．", "answer": true, "explanation": "行動価値関数は，特定の状態と行動の組に対する価値を評価する関数である．"}, {"id": "8-3-3", "test": 8, "topic": "第3問　状態価値関数と行動価値関数", "number": "3-3", "statement": "状態価値関数 V(s) は，方策に従って状態 s からスタートしたときの割引累積報酬の期待値である．", "answer": true, "explanation": "状態価値関数は，状態ごとの将来的な価値を表す指標である．"}, {"id": "8-3-4", "test": 8, "topic": "第3問　状態価値関数と行動価値関数", "number": "3-4", "statement": "状態価値関数と行動価値関数は常に同じ値をとる．", "answer": false, "explanation": "状態価値関数は状態のみを評価し，行動価値関数は状態と行動の組を評価するため，一般には異なる．"}, {"id": "8-3-5", "test": 8, "topic": "第3問　状態価値関数と行動価値関数", "number": "3-5", "statement": "状態価値関数は，方策に依存せず定義できる．", "answer": false, "explanation": "状態価値関数は採用する方策に依存して決まる．"}, {"id": "8-4-1", "test": 8, "topic": "第4問　Q学習", "number": "4-1", "statement": "Q学習では，状態価値関数 V(s) を直接更新する．", "answer": false, "explanation": "Q学習では，状態と行動の組に対する行動価値関数 Q(s,a) を更新する．"}, {"id": "8-4-2", "test": 8, "topic": "第4問　Q学習", "number": "4-2", "statement": "Q学習では，学習率と割引率を設定することで，学習の進行と将来報酬の重みづけを調整できる．", "answer": true, "explanation": "学習率は新しい情報の反映度合いを，割引率は将来報酬の重視度を制御する．"}, {"id": "8-4-3", "test": 8, "topic": "第4問　Q学習", "number": "4-3", "statement": "Q学習におけるQ値は状態と行動のペアごとに保存される．", "answer": true, "explanation": "Q値は各状態・行動の組ごとに管理され，行動選択の基準として利用される．"}, {"id": "8-4-4", "test": 8, "topic": "第4問　Q学習", "number": "4-4", "statement": "Q学習では，TD誤差が0になるようにQ値を更新していく．", "answer": true, "explanation": "予測値と目標値の差であるTD誤差を小さくする方向にQ値を更新する．"}, {"id": "8-4-5", "test": 8, "topic": "第4問　Q学習", "number": "4-5", "statement": "Q学習では，あらかじめ決められた正解方策に従って行動する必要がある．", "answer": false, "explanation": "Q学習は試行錯誤によって最適方策を学習するため，事前に正解方策を与える必要はない．"}, {"id": "8-5-1", "test": 8, "topic": "第5問　方策の選択方法とその特徴", "number": "5-1", "statement": "方策の選択方法におけるグリーディ法は，常にランダムに行動を選ぶ手法である．", "answer": false, "explanation": "グリーディ法は，その時点で最も高い価値をもつ行動を選択する手法である．"}, {"id": "8-5-2", "test": 8, "topic": "第5問　方策の選択方法とその特徴", "number": "5-2", "statement": "方策の選択方法におけるε-グリーディ法は，εの確率でランダムな行動を選ぶ．", "answer": true, "explanation": "ε-グリーディ法では，探索のために一定確率でランダムな行動を選択する．"}, {"id": "8-5-3", "test": 8, "topic": "第5問　方策の選択方法とその特徴", "number": "5-3", "statement": "方策の選択方法におけるボルツマン選択は，Q値が高い行動を高い確率で選ぶ手法である．", "answer": true, "explanation": "ボルツマン選択では，各行動のQ値に応じた確率で行動を選択するため，Q値が高い行動ほど選ばれやすい．"}, {"id": "8-5-4", "test": 8, "topic": "第5問　方策の選択方法とその特徴", "number": "5-4", "statement": "方策の選択方法における利用と探索のトレードオフは，探索行動を抑えるための考え方である．", "answer": false, "explanation": "利用と探索のトレードオフは，既知の良い行動を利用することと，新しい行動を探索することのバランスを考える概念である．"}, {"id": "8-5-5", "test": 8, "topic": "第5問　方策の選択方法とその特徴", "number": "5-5", "statement": "方策の選択方法におけるボルツマン選択では，温度パラメータが小さいほどすべての行動が等確率に近づく．", "answer": false, "explanation": "温度パラメータが大きいとQ値の差が反映されにくくなり，行動選択がよりランダムになる．"}, {"id": "9-1-1", "test": 9, "topic": "第1問　クラスタリングと特徴抽出", "number": "1-1", "statement": "クラスタリングとは，正解ラベル付きのデータをもとにグループ化を行う．", "answer": false, "explanation": "クラスタリングは教師なし学習の代表的な手法であり，正解ラベルを用いずにデータの構造を発見する．"}, {"id": "9-1-2", "test": 9, "topic": "第1問　クラスタリングと特徴抽出", "number": "1-2", "statement": "クラスタリングでは，データの類似度に基づいて自動的にグループ分けを行う．", "answer": true, "explanation": "類似した特徴をもつデータ同士を同じクラスタにまとめる手法である．"}, {"id": "9-1-3", "test": 9, "topic": "第1問　クラスタリングと特徴抽出", "number": "1-3", "statement": "クラスタリングでは，データ間同士の距離や密度を計算し，似たもの同士を集めてクラスタを形成する．", "answer": true, "explanation": "多くのクラスタリング手法では，距離や密度などの指標を利用してグループを形成する．"}, {"id": "9-1-4", "test": 9, "topic": "第1問　クラスタリングと特徴抽出", "number": "1-4", "statement": "クラスタリングにおける特徴量は，クラスタリングの入力として重要な役割をもつ．", "answer": true, "explanation": "特徴量の選び方によって，クラスタリング結果が大きく変化する．"}, {"id": "9-1-5", "test": 9, "topic": "第1問　クラスタリングと特徴抽出", "number": "1-5", "statement": "クラスタリングでは，元の正解データをそのままクラスタリングするのが一般的である．", "answer": false, "explanation": "前処理として特徴量抽出や次元削減を行うことで，より良いクラスタリング結果が得られることが多い．"}, {"id": "9-2-1", "test": 9, "topic": "第2問　k-means法", "number": "2-1", "statement": "k-means法は，事前にクラスタ数を指定する必要がある．", "answer": true, "explanation": "k-means法では，あらかじめクラスタ数 k を設定してから学習を行う．"}, {"id": "9-2-2", "test": 9, "topic": "第2問　k-means法", "number": "2-2", "statement": "k-means法では，各データ点は，もっとも近いクラスタ代表点に割り当てられる．", "answer": true, "explanation": "各データ点とクラスタ中心との距離を比較し，最も近いクラスタへ所属させる．"}, {"id": "9-2-3", "test": 9, "topic": "第2問　k-means法", "number": "2-3", "statement": "k-means法では，クラスタ境界の不確かさを確率的に表現できる．", "answer": false, "explanation": "k-means法は各データを一つのクラスタに割り当てるため，確率的な所属度は扱わない．"}, {"id": "9-2-4", "test": 9, "topic": "第2問　k-means法", "number": "2-4", "statement": "k-means法では，評価関数の値は，アルゴリズムの反復により単調に増加する．", "answer": false, "explanation": "k-means法では通常，クラスタに関する平方和誤差を最小化するため，評価関数は単調に減少する．"}, {"id": "9-2-5", "test": 9, "topic": "第2問　k-means法", "number": "2-5", "statement": "k-means法では，初期値によって最終結果が変わることがある．", "answer": true, "explanation": "初期クラスタ中心の選び方によって局所最適解が変わることがある．"}, {"id": "9-3-1", "test": 9, "topic": "第3問　混合分布モデルとその特徴", "number": "3-1", "statement": "混合分布モデルは，複数の確率分布を組み合わせて全体の分布を表現する．", "answer": true, "explanation": "混合分布モデルは，複数の確率分布の重ね合わせとしてデータを表現する．"}, {"id": "9-3-2", "test": 9, "topic": "第3問　混合分布モデルとその特徴", "number": "3-2", "statement": "混合分布モデルは，確率的クラスタリングが可能なモデルである．", "answer": true, "explanation": "各データが各クラスタに属する確率を推定できる．"}, {"id": "9-3-3", "test": 9, "topic": "第3問　混合分布モデルとその特徴", "number": "3-3", "statement": "混合分布モデルでは，各データ点が属するクラスタを距離だけで決定する．", "answer": false, "explanation": "クラスタへの所属は確率に基づいて評価される．"}, {"id": "9-3-4", "test": 9, "topic": "第3問　混合分布モデルとその特徴", "number": "3-4", "statement": "混合分布モデルは，すべてのクラスタに同じ形状の分布を仮定する必要がある．", "answer": false, "explanation": "クラスタごとに異なる分布パラメータを設定できる．"}, {"id": "9-3-5", "test": 9, "topic": "第3問　混合分布モデルとその特徴", "number": "3-5", "statement": "混合分布モデルは，確率的生成モデルの一種である．", "answer": true, "explanation": "データがどのように生成されたかを確率分布によって表現する生成モデルである．"}, {"id": "9-4-1", "test": 9, "topic": "第4問　表現学習", "number": "4-1", "statement": "表現学習では，観測データの特徴をベクトルとして抽出する．", "answer": true, "explanation": "データを機械学習で扱いやすい特徴ベクトルへ変換することを目的とする．"}, {"id": "9-4-2", "test": 9, "topic": "第4問　表現学習", "number": "4-2", "statement": "表現学習における分散表現では，情報が複数の次元に分散して表現される．", "answer": true, "explanation": "一つの概念や特徴が複数の次元にまたがって表現される．"}, {"id": "9-4-3", "test": 9, "topic": "第4問　表現学習", "number": "4-3", "statement": "表現学習は，すでに分類されたデータを使って教師ありで行う学習法である．", "answer": false, "explanation": "表現学習には教師あり学習だけでなく，自己教師あり学習や教師なし学習も含まれる．"}, {"id": "9-4-4", "test": 9, "topic": "第4問　表現学習", "number": "4-4", "statement": "表現学習における局所表現では，各概念が特定の次元や要素に対応して表現される．", "answer": true, "explanation": "一つの概念が特定の次元に対応する表現方法である．"}, {"id": "9-4-5", "test": 9, "topic": "第4問　表現学習", "number": "4-5", "statement": "表現学習は，クラスタリングと同様に教師なし学習のみで使われる手法である．", "answer": false, "explanation": "表現学習は特徴表現を学習する枠組みであり，教師なし学習だけでなく，教師あり学習や自己教師あり学習にも用いられる．"}, {"id": "9-5-1", "test": 9, "topic": "第5問　主成分分析（PCA）と関連手法", "number": "5-1", "statement": "主成分分析は，データのばらつきを最大にする方向を見つけることで次元を削減する．", "answer": true, "explanation": "分散が最大となる方向を主成分として抽出し，低次元へ射影する．"}, {"id": "9-5-2", "test": 9, "topic": "第5問　主成分分析（PCA）と関連手法", "number": "5-2", "statement": "主成分分析の第1主成分は，最も分散が小さい方向である．", "answer": false, "explanation": "第1主成分は，データの分散が最も大きい方向である．"}, {"id": "9-5-3", "test": 9, "topic": "第5問　主成分分析（PCA）と関連手法", "number": "5-3", "statement": "独立成分分析は，多変量正規分布に従わないことを仮定し，独立な成分を抽出する手法である．", "answer": true, "explanation": "統計的に独立な潜在要因を推定することを目的とする．"}, {"id": "9-5-4", "test": 9, "topic": "第5問　主成分分析（PCA）と関連手法", "number": "5-4", "statement": "オートエンコーダは，入力を出力として再構成することで特徴ベクトルを学習する．", "answer": true, "explanation": "入力を圧縮した潜在表現から元の入力を再構成するよう学習する．"}, {"id": "9-5-5", "test": 9, "topic": "第5問　主成分分析（PCA）と関連手法", "number": "5-5", "statement": "変分オートエンコーダは，確率的生成モデルの一種である．", "answer": true, "explanation": "潜在変数に確率分布を導入し，新しいデータを生成できる生成モデルである．"}, {"id": "10-1-1", "test": 10, "topic": "第1問　教師あり学習", "number": "1-1", "statement": "教師あり学習では，正解データが与えられずに学習を進める．", "answer": false, "explanation": "教師あり学習では，入力データと対応する正解データ（ラベル）を用いて学習を行う．"}, {"id": "10-1-2", "test": 10, "topic": "第1問　教師あり学習", "number": "1-2", "statement": "教師あり学習では，訓練データに対して出力の正解が与えられる．", "answer": true, "explanation": "入力と正解の組を利用して，入力から正しい出力を予測するモデルを学習する．"}, {"id": "10-1-3", "test": 10, "topic": "第1問　教師あり学習", "number": "1-3", "statement": "教師あり学習の目的は，訓練データに完全に適合するモデルを得ることである．", "answer": false, "explanation": "目的は未知のデータに対しても高い予測性能を示すことであり，訓練データへの完全適合ではない．"}, {"id": "10-1-4", "test": 10, "topic": "第1問　教師あり学習", "number": "1-4", "statement": "教師信号は分類問題では「ラベル」と呼ばれる．", "answer": true, "explanation": "分類問題では，正解として与えられるカテゴリ情報をラベルと呼ぶ．"}, {"id": "10-1-5", "test": 10, "topic": "第1問　教師あり学習", "number": "1-5", "statement": "教師あり学習では，入力データのクラスタ構造を自動的に学習する．", "answer": false, "explanation": "クラスタ構造の発見は主に教師なし学習で扱われる課題である．"}, {"id": "10-2-1", "test": 10, "topic": "第2問　分類問題と回帰問題", "number": "2-1", "statement": "回帰問題は，離散的なラベルを予測する問題である．", "answer": false, "explanation": "回帰問題では，連続値を予測することを目的とする．"}, {"id": "10-2-2", "test": 10, "topic": "第2問　分類問題と回帰問題", "number": "2-2", "statement": "分類問題では，入力に対して連続値の出力を予測する．", "answer": false, "explanation": "分類問題では，あらかじめ定義されたカテゴリやクラスを予測する．"}, {"id": "10-2-3", "test": 10, "topic": "第2問　分類問題と回帰問題", "number": "2-3", "statement": "分類問題では，入力を x，ラベルを y とすると，事後分布 P(y|x) をモデル化する．", "answer": true, "explanation": "分類モデルは，入力が与えられたときに各クラスに属する確率を推定する．"}, {"id": "10-2-4", "test": 10, "topic": "第2問　分類問題と回帰問題", "number": "2-4", "statement": "回帰問題では，汎化誤差を最小にすることが目標である．", "answer": true, "explanation": "学習データだけでなく未知データに対する予測誤差を小さくすることが重要である．"}, {"id": "10-2-5", "test": 10, "topic": "第2問　分類問題と回帰問題", "number": "2-5", "statement": "分類問題では，交差エントロピー誤差関数がよく用いられる．", "answer": true, "explanation": "交差エントロピーは確率的分類モデルの学習で広く利用される損失関数である．"}, {"id": "10-3-1", "test": 10, "topic": "第3問　識別モデルと生成モデル", "number": "3-1", "statement": "識別モデルは，入力を x，ラベルを y とすると，事後分布 P(y|x) を直接モデル化する．", "answer": true, "explanation": "識別モデルは，入力からクラスを直接予測する条件付き確率分布や決定境界を学習する．"}, {"id": "10-3-2", "test": 10, "topic": "第3問　識別モデルと生成モデル", "number": "3-2", "statement": "生成モデルでは，クラスごとに特徴量がどのように生成されるかを確率的に表現する．", "answer": true, "explanation": "生成モデルは，各クラスにおける特徴量の分布をモデル化し，その確率に基づいて分類を行う．"}, {"id": "10-3-3", "test": 10, "topic": "第3問　識別モデルと生成モデル", "number": "3-3", "statement": "サポートベクトルマシン（SVM）は，典型的な生成モデルである．", "answer": false, "explanation": "SVMはクラス間の識別境界を学習する識別モデルである．"}, {"id": "10-3-4", "test": 10, "topic": "第3問　識別モデルと生成モデル", "number": "3-4", "statement": "混合ガウス分布モデルは，生成モデルの一例である．", "answer": true, "explanation": "混合ガウス分布モデルは，データ生成過程を確率分布として表現する生成モデルである．"}, {"id": "10-3-5", "test": 10, "topic": "第3問　識別モデルと生成モデル", "number": "3-5", "statement": "生成モデルでは，分類のために識別境界を直接学習する．", "answer": false, "explanation": "生成モデルはデータ分布を学習し，そこから分類を行う．識別境界を直接学習するわけではない．"}, {"id": "10-4-1", "test": 10, "topic": "第4問　最小二乗法と勾配法", "number": "4-1", "statement": "最小二乗法は，予測誤差の絶対値の和を最小化する手法である．", "answer": false, "explanation": "最小二乗法は，誤差の二乗和を最小化する手法である．"}, {"id": "10-4-2", "test": 10, "topic": "第4問　最小二乗法と勾配法", "number": "4-2", "statement": "最小二乗法では，二乗誤差を合計した評価関数を最小化する．", "answer": true, "explanation": "回帰分析で広く用いられる代表的な最適化基準である．"}, {"id": "10-4-3", "test": 10, "topic": "第4問　最小二乗法と勾配法", "number": "4-3", "statement": "勾配法は，評価関数の勾配方向を用いてパラメータを更新していく最適化法である．", "answer": true, "explanation": "評価関数を小さくする方向へ少しずつパラメータを更新する．"}, {"id": "10-4-4", "test": 10, "topic": "第4問　最小二乗法と勾配法", "number": "4-4", "statement": "勾配法は，常に最適解に到達することが保証される．", "answer": false, "explanation": "非凸な問題では局所最適解に収束することがあり，最適解は保証されない．"}, {"id": "10-4-5", "test": 10, "topic": "第4問　最小二乗法と勾配法", "number": "4-5", "statement": "勾配法は，線形回帰だけでなく非線形モデルにも適用可能である．", "answer": true, "explanation": "ニューラルネットワークなど，多くの非線形モデルの学習にも利用される．"}, {"id": "10-5-1", "test": 10, "topic": "第5問　教師あり学習の評価と汎化性能", "number": "5-1", "statement": "訓練データが高精度であれば，汎化性能も高いといえる．", "answer": false, "explanation": "訓練データに過剰適合している場合，未知データに対する性能が低下することがある．"}, {"id": "10-5-2", "test": 10, "topic": "第5問　教師あり学習の評価と汎化性能", "number": "5-2", "statement": "汎化とは，訓練データ以外の未知データに対する予測性能を指す．", "answer": true, "explanation": "実際の機械学習では，未知データに対する性能が重要な評価指標となる．"}, {"id": "10-5-3", "test": 10, "topic": "第5問　教師あり学習の評価と汎化性能", "number": "5-3", "statement": "テストデータは，学習に使われたデータと同じものである．", "answer": false, "explanation": "テストデータは学習に使用しない独立したデータであり，モデル評価に利用される．"}, {"id": "10-5-4", "test": 10, "topic": "第5問　教師あり学習の評価と汎化性能", "number": "5-4", "statement": "クロスバリデーションは，データセットを複数に分割して汎化性能を評価する方法である．", "answer": true, "explanation": "限られたデータを有効活用しながらモデル性能を評価できる．"}, {"id": "10-5-5", "test": 10, "topic": "第5問　教師あり学習の評価と汎化性能", "number": "5-5", "statement": "過学習とは，未知のデータに対して性能が著しく良くなることを意味する．", "answer": false, "explanation": "過学習とは訓練データに過度に適合し，未知データに対する性能が低下する現象である．"}, {"id": "11-1-1", "test": 11, "topic": "第1問　ニューラルネットワークの特徴と構造", "number": "1-1", "statement": "ニューラルネットワークは主に教師なし学習に用いられる．", "answer": false, "explanation": "ニューラルネットワークは教師あり学習で広く利用される手法であり，分類や回帰などに用いられる．"}, {"id": "11-1-2", "test": 11, "topic": "第1問　ニューラルネットワークの特徴と構造", "number": "1-2", "statement": "多層ニューラルネットワークでは，中間層を増やすことでより複雑な特徴を段階的に学習できる．", "answer": true, "explanation": "各中間層は前の層で抽出した特徴を組み合わせ，より抽象的で複雑な特徴表現を学習できる．"}, {"id": "11-1-3", "test": 11, "topic": "第1問　ニューラルネットワークの特徴と構造", "number": "1-3", "statement": "活性化関数には，ReLUやシグモイド関数などが用いられる．", "answer": true, "explanation": "ReLUやシグモイド関数は，ニューラルネットワークで広く利用される代表的な活性化関数である．"}, {"id": "11-1-4", "test": 11, "topic": "第1問　ニューラルネットワークの特徴と構造", "number": "1-4", "statement": "ニューラルネットワークは認識の正解を必要としないため，勾配計算が不要である．", "answer": false, "explanation": "教師あり学習では誤差を最小化するために勾配計算を行い，パラメータを更新する．"}, {"id": "11-1-5", "test": 11, "topic": "第1問　ニューラルネットワークの特徴と構造", "number": "1-5", "statement": "入力層，隠れ層，出力層の3層から構成されるネットワークをパーセプトロンと呼ぶ．", "answer": false, "explanation": "パーセプトロンは本来単層構造を指し，隠れ層をもつものは多層パーセプトロン（MLP）と呼ばれる．"}, {"id": "11-2-1", "test": 11, "topic": "第2問　深層学習と特徴抽出", "number": "2-1", "statement": "深層学習では，特徴抽出器の設計も含めてネットワークが自動的に最適化される．", "answer": true, "explanation": "深層学習では，特徴量抽出と予測モデルを一体として学習できる．"}, {"id": "11-2-2", "test": 11, "topic": "第2問　深層学習と特徴抽出", "number": "2-2", "statement": "深層学習では，中間層の出力を利用してデータの特徴表現を学習する．", "answer": true, "explanation": "深層学習は複数の層を通じてデータを変換し，分類や予測に有用な特徴表現を自動的に獲得する．"}, {"id": "11-2-3", "test": 11, "topic": "第2問　深層学習と特徴抽出", "number": "2-3", "statement": "深層学習は，高次元入力ベクトルから直接パターン認識を行う．", "answer": true, "explanation": "画像や音声などの高次元データから有用な特徴を自動的に抽出できる．"}, {"id": "11-2-4", "test": 11, "topic": "第2問　深層学習と特徴抽出", "number": "2-4", "statement": "画像認識のような分野では，深層学習よりもテンプレートマッチングが一般的である．", "answer": false, "explanation": "現在の画像認識では深層学習が主流となっている．"}, {"id": "11-2-5", "test": 11, "topic": "第2問　深層学習と特徴抽出", "number": "2-5", "statement": "深層学習では，従来の教師あり学習と同様に特徴ベクトルを人手で設計する必要がある．", "answer": false, "explanation": "深層学習の大きな特徴は，特徴表現そのものを自動的に学習できる点にある．"}, {"id": "11-3-1", "test": 11, "topic": "第3問　誤差逆伝播法と勾配法", "number": "3-1", "statement": "誤差逆伝播法では，出力層から入力層へと誤差を伝えてパラメータを更新する．", "answer": true, "explanation": "出力誤差を各層へ伝播させることで，重みやバイアスを効率的に更新する．"}, {"id": "11-3-2", "test": 11, "topic": "第3問　誤差逆伝播法と勾配法", "number": "3-2", "statement": "多層ニューラルネットワークでは，中間層の数や各層のユニット数はハイパーパラメータである．", "answer": true, "explanation": "中間層の構造は学習によって自動的に決まるものではなく，学習前に設計者が設定するハイパーパラメータである．"}, {"id": "11-3-3", "test": 11, "topic": "第3問　誤差逆伝播法と勾配法", "number": "3-3", "statement": "活性化関数や誤差関数は，微分可能であることが望ましい．", "answer": true, "explanation": "勾配を利用した学習を行うため，微分可能性が重要となる．"}, {"id": "11-3-4", "test": 11, "topic": "第3問　誤差逆伝播法と勾配法", "number": "3-4", "statement": "誤差逆伝播法では，手計算で勾配を求める必要がある．", "answer": false, "explanation": "誤差逆伝播法は連鎖律を利用して勾配を自動的かつ効率的に計算する．"}, {"id": "11-3-5", "test": 11, "topic": "第3問　誤差逆伝播法と勾配法", "number": "3-5", "statement": "勾配法の改良版として，Adamや確率的勾配降下法（SGD）などがある．", "answer": true, "explanation": "SGDやAdamはニューラルネットワーク学習で広く利用される最適化手法である．"}, {"id": "11-4-1", "test": 11, "topic": "第4問　畳み込みニューラルネットワーク（CNN）", "number": "4-1", "statement": "CNNは画像認識の分野で使われる．", "answer": true, "explanation": "CNNは画像の空間的な特徴を効率的に抽出できるため，画像認識で広く利用されている．"}, {"id": "11-4-2", "test": 11, "topic": "第4問　畳み込みニューラルネットワーク（CNN）", "number": "4-2", "statement": "CNNの畳み込み層では，活性化関数を持たないのが特徴である．", "answer": false, "explanation": "畳み込み演算の後には通常，ReLUなどの活性化関数が適用される．"}, {"id": "11-4-3", "test": 11, "topic": "第4問　畳み込みニューラルネットワーク（CNN）", "number": "4-3", "statement": "CNNでは，フィルタの重みを学習によって最適化する．", "answer": true, "explanation": "畳み込みフィルタの係数は学習によって自動的に調整される．"}, {"id": "11-4-4", "test": 11, "topic": "第4問　畳み込みニューラルネットワーク（CNN）", "number": "4-4", "statement": "CNNのプーリング層は，入力データの次元を増やすために用いられる．", "answer": false, "explanation": "プーリング層は特徴マップを縮小し，計算量や過学習を抑制するために利用される．"}, {"id": "11-4-5", "test": 11, "topic": "第4問　畳み込みニューラルネットワーク（CNN）", "number": "4-5", "statement": "CNNの最大値プーリングや平均値プーリングは情報の圧縮に用いられる．", "answer": true, "explanation": "近傍領域の情報を要約することで，特徴マップを小さくする．"}, {"id": "11-5-1", "test": 11, "topic": "第5問　リカレントニューラルネットワーク（RNN）", "number": "5-1", "statement": "RNNは，時系列構造を持たないデータに適している．", "answer": false, "explanation": "RNNは系列データや時系列データを扱うために設計されたモデルである．"}, {"id": "11-5-2", "test": 11, "topic": "第5問　リカレントニューラルネットワーク（RNN）", "number": "5-2", "statement": "RNNでは，現在の出力を計算する際に過去の情報も利用できる．", "answer": true, "explanation": "RNNは隠れ状態を通じて過去の情報を保持するため，現在の入力だけでなく過去の情報も考慮して出力を計算する．"}, {"id": "11-5-3", "test": 11, "topic": "第5問　リカレントニューラルネットワーク（RNN）", "number": "5-3", "statement": "RNNは，前の時刻の出力を次の入力として再利用する．", "answer": true, "explanation": "過去の情報を利用しながら系列データを順次処理する．"}, {"id": "11-5-4", "test": 11, "topic": "第5問　リカレントニューラルネットワーク（RNN）", "number": "5-4", "statement": "再帰型ニューラルネットワーク（RNN）では，現在の入力だけを使って出力を計算する．", "answer": false, "explanation": "RNNは現在の入力だけでなく，過去の情報を保持した内部状態も利用して出力を計算する．"}, {"id": "11-5-5", "test": 11, "topic": "第5問　リカレントニューラルネットワーク（RNN）", "number": "5-5", "statement": "RNNは，誤差逆伝播法を使わずに学習するのが一般的である．", "answer": false, "explanation": "RNNは通常，時間方向に展開した誤差逆伝播法（Backpropagation Through Time：BPTT）を用いて学習する．"}, {"id": "12-1-1", "test": 12, "topic": "第1問　状態推定の基本概念", "number": "1-1", "statement": "状態推定とは，現在の状態を直接観測する手法である．", "answer": false, "explanation": "状態推定では，直接観測できない真の状態を，観測データや行動履歴から推定する．"}, {"id": "12-1-2", "test": 12, "topic": "第1問　状態推定の基本概念", "number": "1-2", "statement": "状態推定では，センサ情報や行動履歴を統合して状態を間接的に推定する．", "answer": true, "explanation": "不完全な観測情報を利用し，確率的に現在の状態を推定する．"}, {"id": "12-1-3", "test": 12, "topic": "第1問　状態推定の基本概念", "number": "1-3", "statement": "状態推定は，確率的に状態を求めるための手法である．", "answer": true, "explanation": "状態を一意に決定するのではなく，各状態である確率を推定する．"}, {"id": "12-1-4", "test": 12, "topic": "第1問　状態推定の基本概念", "number": "1-4", "statement": "状態推定は，完全な観測が得られることを前提とする．", "answer": false, "explanation": "状態推定は，不完全またはノイズを含む観測しか得られない状況で用いられる．"}, {"id": "12-1-5", "test": 12, "topic": "第1問　状態推定の基本概念", "number": "1-5", "statement": "状態推定では，過去の情報が未来の状態に影響しないと仮定する．", "answer": false, "explanation": "現在の状態は過去の状態や行動の影響を受けるため，履歴情報が重要となる．"}, {"id": "12-2-1", "test": 12, "topic": "第2問　部分観測マルコフ決定過程（POMDP）", "number": "2-1", "statement": "POMDPでは，状態が完全に観測可能である．", "answer": false, "explanation": "POMDPは「部分観測マルコフ決定過程」であり，状態を直接観測できない状況を扱う．"}, {"id": "12-2-2", "test": 12, "topic": "第2問　部分観測マルコフ決定過程（POMDP）", "number": "2-2", "statement": "POMDPでは，観測モデルや状態遷移モデルが用いられる．", "answer": true, "explanation": "状態遷移確率と観測確率を利用して状態を推定する．"}, {"id": "12-2-3", "test": 12, "topic": "第2問　部分観測マルコフ決定過程（POMDP）", "number": "2-3", "statement": "POMDPは，観測と行動の履歴をもとに状態を確率的に推定する．", "answer": true, "explanation": "観測と行動の履歴から信念状態（belief state）を更新する．"}, {"id": "12-2-4", "test": 12, "topic": "第2問　部分観測マルコフ決定過程（POMDP）", "number": "2-4", "statement": "POMDPでは，常に一意に状態を特定できる．", "answer": false, "explanation": "観測が不十分な場合は，複数の状態が候補として残ることがある．"}, {"id": "12-2-5", "test": 12, "topic": "第2問　部分観測マルコフ決定過程（POMDP）", "number": "2-5", "statement": "POMDPとMDPは同一であり，観測可能性の違いによって区別されることはない．", "answer": false, "explanation": "MDPは状態が完全観測可能であり，POMDPは部分観測である点が異なる．"}, {"id": "12-3-1", "test": 12, "topic": "第3問　ベイズフィルタのアルゴリズム", "number": "3-1", "statement": "ベイズフィルタは時系列の状態を推定する逐次型アルゴリズムである．", "answer": true, "explanation": "新しい観測が得られるたびに状態の存在確率を更新していく．"}, {"id": "12-3-2", "test": 12, "topic": "第3問　ベイズフィルタのアルゴリズム", "number": "3-2", "statement": "ベイズフィルタは，過去すべての観測と行動履歴を保持する必要がある．", "answer": false, "explanation": "現在の信念状態を保持していれば，前時刻の推定結果と新しい観測から再帰的に更新できる．"}, {"id": "12-3-3", "test": 12, "topic": "第3問　ベイズフィルタのアルゴリズム", "number": "3-3", "statement": "ベイズフィルタでは，再帰的に状態の存在確率を更新していく．", "answer": true, "explanation": "前時刻の推定結果と現在の観測を利用して状態確率を更新する．"}, {"id": "12-3-4", "test": 12, "topic": "第3問　ベイズフィルタのアルゴリズム", "number": "3-4", "statement": "観測モデルは，観測が得られる確率を状態に応じて与える．", "answer": true, "explanation": "観測モデルは P(z|s) のように，状態ごとの観測確率を表現する．"}, {"id": "12-3-5", "test": 12, "topic": "第3問　ベイズフィルタのアルゴリズム", "number": "3-5", "statement": "ベイズフィルタでは，観測と行動が状態に依存しないと仮定する．", "answer": false, "explanation": "ベイズフィルタでは，状態遷移モデルや観測モデルを用いて状態との依存関係を扱う．"}, {"id": "12-4-1", "test": 12, "topic": "第4問　授業で扱ったマス目上のロボットの例", "number": "4-1", "statement": "ロボットは，遷移モデルと観測モデルを知らないまま位置推定を行う．", "answer": false, "explanation": "ベイズフィルタによる位置推定では，通常，地図（遷移モデル）と観測モデルが既知であることを前提とする．"}, {"id": "12-4-2", "test": 12, "topic": "第4問　授業で扱ったマス目上のロボットの例", "number": "4-2", "statement": "同じ壁の配置が複数存在するため，1回の観測だけでは位置を特定できないことがある．", "answer": true, "explanation": "同じ観測結果を与える場所が複数存在する場合，位置は一意に決まらない．"}, {"id": "12-4-3", "test": 12, "topic": "第4問　授業で扱ったマス目上のロボットの例", "number": "4-3", "statement": "行動によって観測の不確かさを補うことができる．", "answer": true, "explanation": "移動して新たな観測を得ることで，位置候補を絞り込める．"}, {"id": "12-4-4", "test": 12, "topic": "第4問　授業で扱ったマス目上のロボットの例", "number": "4-4", "statement": "無情報事前分布とは，すべての状態に等確率を与える分布のことをいう．", "answer": true, "explanation": "初期状態について何も知らない場合によく用いられる．"}, {"id": "12-4-5", "test": 12, "topic": "第4問　授業で扱ったマス目上のロボットの例", "number": "4-5", "statement": "正しい観測が得られる確率が1であれば，位置推定に誤差は生じない．", "answer": false, "explanation": "観測が完全でも，同じ観測結果を与える位置が複数存在する場合は位置を一意に特定できない．"}, {"id": "12-5-1", "test": 12, "topic": "第5問　状態空間モデルと観測モデル", "number": "5-1", "statement": "状態遷移モデルでは，現在の状態と行動により次の状態が確率的に決まる．", "answer": true, "explanation": "状態遷移モデルは P(s'|s,a) によって次状態の確率を表現する．"}, {"id": "12-5-2", "test": 12, "topic": "第5問　状態空間モデルと観測モデル", "number": "5-2", "statement": "観測モデルでは，状態に基づいて観測が決まる確率を表現する．", "answer": true, "explanation": "観測モデルは状態から観測が生成される確率を表す．"}, {"id": "12-5-3", "test": 12, "topic": "第5問　状態空間モデルと観測モデル", "number": "5-3", "statement": "状態空間モデルでは，現在の状態は過去のすべての状態に直接依存する．", "answer": false, "explanation": "一般にマルコフ性を仮定し，次の状態は現在の状態と行動に基づいて決まるため，過去のすべての状態に直接依存するとは限らない．"}, {"id": "12-5-4", "test": 12, "topic": "第5問　状態空間モデルと観測モデル", "number": "5-4", "statement": "ベイズフィルタでは，状態遷移モデルと観測モデルを用いて状態の確率分布を逐次更新する．", "answer": true, "explanation": "状態遷移モデルによる予測と観測モデルによる補正を繰り返し，信念状態を逐次更新する．"}, {"id": "12-5-5", "test": 12, "topic": "第5問　状態空間モデルと観測モデル", "number": "5-5", "statement": "状態空間モデルは，常に連続変数を扱うものである．", "answer": false, "explanation": "状態空間モデルには離散状態を扱うものもあり，POMDPなども状態空間モデルの一種である．"}, {"id": "13-1-1", "test": 13, "topic": "第1問　粒子フィルタの基本概念", "number": "1-1", "statement": "粒子フィルタはベイズフィルタをサンプリングで効率化した手法である．", "answer": true, "explanation": "粒子フィルタは，状態分布を多数のサンプルで近似し，ベイズフィルタの逐次推定を実現する．"}, {"id": "13-1-2", "test": 13, "topic": "第1問　粒子フィルタの基本概念", "number": "1-2", "statement": "粒子フィルタでは，すべての状態に対して確率を保持する必要がある．", "answer": false, "explanation": "粒子フィルタは有限個の粒子で確率分布を近似するため，すべての状態の確率を個別に保持する必要はない．"}, {"id": "13-1-3", "test": 13, "topic": "第1問　粒子フィルタの基本概念", "number": "1-3", "statement": "粒子とは，確率分布からサンプリングされた候補状態のことである．", "answer": true, "explanation": "各粒子は，推定対象となる状態の候補を表すサンプルである．"}, {"id": "13-1-4", "test": 13, "topic": "第1問　粒子フィルタの基本概念", "number": "1-4", "statement": "粒子フィルタでは，各時刻における真の状態が既知であることを前提としている．", "answer": false, "explanation": "真の状態が直接分からないため，観測と状態遷移モデルから粒子の集合を用いて推定する．"}, {"id": "13-1-5", "test": 13, "topic": "第1問　粒子フィルタの基本概念", "number": "1-5", "statement": "粒子フィルタは，逐次的に仮説の集合を更新することで推定を行う．", "answer": true, "explanation": "粒子の移動，重み付け，リサンプリングを繰り返し，候補状態の集合を逐次更新する．"}, {"id": "13-2-1", "test": 13, "topic": "第2問　モンテカルロ近似", "number": "2-1", "statement": "モンテカルロ近似では，確率分布の代わりにサンプル点の集合を用いる．", "answer": true, "explanation": "多数のサンプルを用いて，確率分布の形状や統計量を近似する．"}, {"id": "13-2-2", "test": 13, "topic": "第2問　モンテカルロ近似", "number": "2-2", "statement": "確率分布からのサンプリングによって，期待値を計算することができる．", "answer": true, "explanation": "サンプル上で関数値の平均を求めることで，期待値を近似できる．"}, {"id": "13-2-3", "test": 13, "topic": "第2問　モンテカルロ近似", "number": "2-3", "statement": "モンテカルロ法は，観測が完全な状況でのみ有効である．", "answer": false, "explanation": "モンテカルロ法は不確実性を含む問題にも適用でき，完全な観測だけを前提とする手法ではない．"}, {"id": "13-2-4", "test": 13, "topic": "第2問　モンテカルロ近似", "number": "2-4", "statement": "サンプル点数が大きいほど，元の確率分布の近似精度が上がる．", "answer": true, "explanation": "一般にサンプル数を増やすと統計的なばらつきが小さくなり，近似精度が向上する．"}, {"id": "13-2-5", "test": 13, "topic": "第2問　モンテカルロ近似", "number": "2-5", "statement": "サンプル点の集合は，確率分布を厳密に表現するために使用される．", "answer": false, "explanation": "有限個のサンプルは確率分布を近似するものであり，通常は厳密な表現ではない．"}, {"id": "13-3-1", "test": 13, "topic": "第3問　Sampling Importance Resampling（SIR）", "number": "3-1", "statement": "SIRでは，サンプル点に対して観測に基づく重みを付ける．", "answer": true, "explanation": "各粒子の重みは，その状態から現在の観測が得られる尤度に基づいて更新される．"}, {"id": "13-3-2", "test": 13, "topic": "第3問　Sampling Importance Resampling（SIR）", "number": "3-2", "statement": "SIRでは，リサンプリング後も古い重みを維持して次のステップに使用する．", "answer": false, "explanation": "リサンプリング後は選ばれた粒子を新しい粒子群とし，通常は重みを均等に初期化する．"}, {"id": "13-3-3", "test": 13, "topic": "第3問　Sampling Importance Resampling（SIR）", "number": "3-3", "statement": "SIRでは，すべての粒子に同じ重みを割り当てて処理を簡単化している．", "answer": false, "explanation": "観測による重み付けでは，観測との整合性が高い粒子ほど大きな重みを持つ．"}, {"id": "13-3-4", "test": 13, "topic": "第3問　Sampling Importance Resampling（SIR）", "number": "3-4", "statement": "SIRでは，事後分布を近似するために，重み付きのサンプル（粒子）を用い，重みに基づいて再サンプリングを行う．", "answer": true, "explanation": "重み付き粒子で事後分布を近似し，重みの大きい粒子を残しやすくする再サンプリングを行う．"}, {"id": "13-3-5", "test": 13, "topic": "第3問　Sampling Importance Resampling（SIR）", "number": "3-5", "statement": "SIRでは，粒子の重みが偏りすぎると，効果的な粒子数が減少し，推定精度が低下する可能性がある．", "answer": true, "explanation": "少数の粒子だけに重みが集中する退化が起こると，多様な仮説を表現できなくなる．"}, {"id": "13-4-1", "test": 13, "topic": "第4問　粒子フィルタによる状態推定の挙動", "number": "4-1", "statement": "粒子フィルタでは，状態の不確かさを複数の粒子によって表現し，それぞれの粒子に重みを割り当てることで事後分布を近似する．", "answer": true, "explanation": "粒子の位置と重みの集合によって，状態の確率分布を離散的に近似する．"}, {"id": "13-4-2", "test": 13, "topic": "第4問　粒子フィルタによる状態推定の挙動", "number": "4-2", "statement": "粒子フィルタでの粒子の重みは，観測結果に関係なくすべて同じ値に設定される．", "answer": false, "explanation": "粒子の重みは，現在の観測が各粒子の状態とどの程度整合するかに応じて更新される．"}, {"id": "13-4-3", "test": 13, "topic": "第4問　粒子フィルタによる状態推定の挙動", "number": "4-3", "statement": "粒子フィルタでは，観測が得られるたびに各粒子の重みを更新し，その後リサンプリングを行って粒子群を更新する．", "answer": true, "explanation": "観測尤度による重み更新後，重みに基づいて粒子を再抽出し，次時刻の粒子群を構成する．"}, {"id": "13-4-4", "test": 13, "topic": "第4問　粒子フィルタによる状態推定の挙動", "number": "4-4", "statement": "粒子フィルタにおいて，粒子数を増やすと近似精度は向上するが，計算コストも増加する．", "answer": true, "explanation": "粒子数を増やすと分布を細かく近似できる一方，状態更新や重み計算の回数が増える．"}, {"id": "13-4-5", "test": 13, "topic": "第4問　粒子フィルタによる状態推定の挙動", "number": "4-5", "statement": "粒子フィルタは，観測ノイズが大きいほど精度が向上する．", "answer": false, "explanation": "観測ノイズが大きいと観測から得られる情報が弱くなり，一般には推定が難しくなる．"}, {"id": "13-5-1", "test": 13, "topic": "第5問　SLAM（Simultaneous Localization and Mapping）", "number": "5-1", "statement": "SLAMは自己位置と地図を同時に推定する手法である．", "answer": true, "explanation": "未知環境で，ロボットの自己位置推定と地図作成を相互に利用しながら同時に行う．"}, {"id": "13-5-2", "test": 13, "topic": "第5問　SLAM（Simultaneous Localization and Mapping）", "number": "5-2", "statement": "SLAMでは，地図が既知であることが前提である．", "answer": false, "explanation": "SLAMは地図が未知または不完全な環境で，地図そのものも推定する手法である．"}, {"id": "13-5-3", "test": 13, "topic": "第5問　SLAM（Simultaneous Localization and Mapping）", "number": "5-3", "statement": "SLAMの目的の一つは，センサのノイズやロボットの運動誤差を考慮しながら，地図と自己位置を推定することである．", "answer": true, "explanation": "センサ観測と移動量の不確かさを統合し，整合する地図と自己位置を推定する．"}, {"id": "13-5-4", "test": 13, "topic": "第5問　SLAM（Simultaneous Localization and Mapping）", "number": "5-4", "statement": "vSLAMでは，カメラ画像を用いて環境を把握し，自己位置推定と地図作成を行う．", "answer": true, "explanation": "vSLAMは画像から特徴点などを抽出し，カメラの位置姿勢と環境地図を推定する．"}, {"id": "13-5-5", "test": 13, "topic": "第5問　SLAM（Simultaneous Localization and Mapping）", "number": "5-5", "statement": "SLAMは，ルンバのような家庭用ロボットには適用が難しい．", "answer": false, "explanation": "SLAMはロボット掃除機を含む移動ロボットで広く利用されている．"}];
+const STORAGE_KEY = "ai-final-quiz-v1";
+
+const els = Object.fromEntries([
+  "scope","mode","order","startBtn","wrongBtn","restartBtn","resetBtn",
+  "progressText","scoreText","progressBar","modeBadge","wrongBadge",
+  "quizCard","meta","topic","statement","trueBtn","falseBtn","result",
+  "resultTitle","correctAnswer","explanation","nextRow","nextBtn",
+  "finish","finishTitle","finishText","finishWrongBtn","finishAllBtn"
+].map(id => [id, document.getElementById(id)]));
+
+let saved = loadSaved();
+let session = {
+  list: [],
+  index: 0,
+  answered: false,
+  correct: 0,
+  incorrect: 0,
+  mode: "all",
+  scope: "all",
+  order: "normal"
+};
+
+function emptySaved() {
+  return {
+    wrongIds: [],
+    history: {},
+    totalAnswers: 0,
+    totalCorrect: 0
+  };
+}
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return emptySaved();
+    return { ...emptySaved(), ...JSON.parse(raw) };
+  } catch {
+    return emptySaved();
+  }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  updateBadges();
+}
+
+function shuffle(array) {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function filteredList(scope, mode, order) {
+  let list = QUESTIONS.filter(q => scope === "all" || String(q.test) === String(scope));
+  if (mode === "wrong") {
+    const wrongSet = new Set(saved.wrongIds);
+    list = list.filter(q => wrongSet.has(q.id));
+  } else if (mode === "unanswered") {
+    list = list.filter(q => !saved.history[q.id]);
+  }
+  if (order === "shuffle") list = shuffle(list);
+  return list;
+}
+
+function startSession(options = {}) {
+  const scope = options.scope ?? els.scope.value;
+  const mode = options.mode ?? els.mode.value;
+  const order = options.order ?? els.order.value;
+
+  els.scope.value = scope;
+  els.mode.value = mode;
+  els.order.value = order;
+
+  session = {
+    list: filteredList(scope, mode, order),
+    index: 0,
+    answered: false,
+    correct: 0,
+    incorrect: 0,
+    mode,
+    scope,
+    order
+  };
+
+  els.finish.classList.remove("show");
+  els.quizCard.classList.remove("hidden");
+
+  if (session.list.length === 0) {
+    showEmpty(mode);
+    return;
+  }
+  renderQuestion();
+}
+
+function showEmpty(mode) {
+  els.quizCard.classList.add("hidden");
+  els.finish.classList.add("show");
+  els.finishTitle.textContent = mode === "wrong" ? "復習対象はありません" : "対象問題はありません";
+  els.finishText.textContent = mode === "wrong"
+    ? "現在，間違えた問題は0問です．全問題モードで学習を開始できます．"
+    : "選択した条件に該当する問題がありません．";
+  els.finishWrongBtn.classList.toggle("hidden", saved.wrongIds.length === 0);
+  updateStats();
+}
+
+function renderQuestion() {
+  const q = session.list[session.index];
+  session.answered = false;
+
+  els.meta.textContent = `理解度確認テスト第${q.test}回　｜　${q.number}　｜　${session.index + 1} / ${session.list.length}`;
+  els.topic.textContent = q.topic;
+  els.statement.textContent = q.statement;
+
+  els.result.className = "result";
+  els.nextRow.classList.remove("show");
+  els.trueBtn.disabled = false;
+  els.falseBtn.disabled = false;
+  els.trueBtn.style.opacity = "";
+  els.falseBtn.style.opacity = "";
+
+  updateStats();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function answer(userAnswer) {
+  if (session.answered || !session.list.length) return;
+
+  const q = session.list[session.index];
+  const isCorrect = userAnswer === q.answer;
+  session.answered = true;
+  session.correct += isCorrect ? 1 : 0;
+  session.incorrect += isCorrect ? 0 : 1;
+
+  saved.totalAnswers += 1;
+  saved.totalCorrect += isCorrect ? 1 : 0;
+  saved.history[q.id] = {
+    answeredAt: new Date().toISOString(),
+    lastCorrect: isCorrect,
+    attempts: (saved.history[q.id]?.attempts || 0) + 1
+  };
+
+  const wrongSet = new Set(saved.wrongIds);
+  if (isCorrect) {
+    if (session.mode === "wrong") wrongSet.delete(q.id);
+  } else {
+    wrongSet.add(q.id);
+  }
+  saved.wrongIds = [...wrongSet];
+  save();
+
+  els.trueBtn.disabled = true;
+  els.falseBtn.disabled = true;
+  const chosenBtn = userAnswer ? els.trueBtn : els.falseBtn;
+  chosenBtn.style.opacity = "1";
+
+  els.result.className = `result show ${isCorrect ? "correct" : "incorrect"}`;
+  els.resultTitle.textContent = isCorrect ? "正解" : "不正解";
+  els.correctAnswer.textContent = `正しい判定：${q.answer ? "○　正しい" : "×　誤り"}`;
+  els.explanation.textContent = q.explanation;
+  els.nextRow.classList.add("show");
+  els.nextBtn.textContent = session.index === session.list.length - 1 ? "結果を見る" : "次の問題へ";
+
+  updateStats();
+}
+
+function nextQuestion() {
+  if (!session.answered) return;
+  if (session.index < session.list.length - 1) {
+    session.index += 1;
+    renderQuestion();
+  } else {
+    finishSession();
+  }
+}
+
+function finishSession() {
+  els.quizCard.classList.add("hidden");
+  els.finish.classList.add("show");
+  const total = session.correct + session.incorrect;
+  const rate = total ? Math.round(session.correct / total * 100) : 0;
+  const remain = saved.wrongIds.length;
+
+  els.finishTitle.textContent = "セッション完了";
+  els.finishText.textContent =
+    `${total}問中${session.correct}問正解，正答率${rate}％です．` +
+    (remain > 0
+      ? ` 現在の誤答リストは${remain}問です．間違えた問題だけを続けて復習できます．`
+      : " 誤答リストは0問です．");
+
+  els.finishWrongBtn.classList.toggle("hidden", remain === 0);
+  updateStats();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function updateStats() {
+  const total = session.list.length;
+  const done = session.index + (session.answered ? 1 : 0);
+  const pct = total ? Math.min(100, done / total * 100) : 0;
+  els.progressText.textContent = total
+    ? `進捗 ${done} / ${total}`
+    : "進捗 0 / 0";
+  els.scoreText.textContent = `正解 ${session.correct}　不正解 ${session.incorrect}`;
+  els.progressBar.style.width = `${pct}%`;
+  updateBadges();
+}
+
+function updateBadges() {
+  const labels = {
+    all: "全問題",
+    wrong: "間違えた問題のみ",
+    unanswered: "未回答のみ"
+  };
+  els.modeBadge.textContent = labels[session.mode] || labels[els.mode.value];
+  els.wrongBadge.textContent = `誤答 ${saved.wrongIds.length}問`;
+}
+
+function restartSession() {
+  if (!session.list.length) {
+    startSession();
+    return;
+  }
+  session.index = 0;
+  session.answered = false;
+  session.correct = 0;
+  session.incorrect = 0;
+  if (session.order === "shuffle") session.list = shuffle(session.list);
+  els.finish.classList.remove("show");
+  els.quizCard.classList.remove("hidden");
+  renderQuestion();
+}
+
+els.startBtn.addEventListener("click", () => startSession());
+els.wrongBtn.addEventListener("click", () => startSession({ mode: "wrong" }));
+els.restartBtn.addEventListener("click", restartSession);
+els.resetBtn.addEventListener("click", () => {
+  const ok = confirm("保存されている回答履歴と誤答リストをすべて消去しますか？");
+  if (!ok) return;
+  saved = emptySaved();
+  save();
+  startSession({ mode: "all" });
+});
+els.trueBtn.addEventListener("click", () => answer(true));
+els.falseBtn.addEventListener("click", () => answer(false));
+els.nextBtn.addEventListener("click", nextQuestion);
+els.finishWrongBtn.addEventListener("click", () => startSession({ mode: "wrong" }));
+els.finishAllBtn.addEventListener("click", () => startSession({ mode: "all" }));
+
+document.addEventListener("keydown", e => {
+  if (els.quizCard.classList.contains("hidden")) return;
+  if (!session.answered) {
+    if (["o","O","ArrowRight"].includes(e.key)) answer(true);
+    if (["x","X","ArrowLeft"].includes(e.key)) answer(false);
+  } else if (e.key === "Enter") {
+    nextQuestion();
+  }
+});
+
+startSession({ mode: "all", scope: "all", order: "normal" });
+</script>
+</body>
+</html>
